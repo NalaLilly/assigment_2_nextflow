@@ -20,6 +20,7 @@ process countGC {
 	
 	library("Biostrings")
 	seqs <- readDNAStringSet(fasta_file)
+	sequance <- as.character(seqs)
 	GC_count <- letterFrequency(seqs, letters = "GC")
 	SeqID <- names(seqs)
 
