@@ -1,0 +1,46 @@
+// input parameters with defults 
+params.inputFile= "bacterial_dna.fasta"
+params.cutoff = 60
+
+process countGC {
+
+    input:
+    path inputFile
+    val cutoff
+	
+	output:
+    path 'output.txt'
+    
+    script:
+    """
+	Rscript -e '
+	
+	cutoff <- as.integer("${cutoff}")
+	fasta_file <-"${inputFile}"
+	
+	library("Biostrings")
+	seqs <- readDNAStringSet(fasta_file)
+	GC_count <- letterFrequency(seqs, letters = "GC")
+	SeqID <- names(seqs)
+
+	result_file = "output.txt"
+	cat("",file = result_file)
+						 
+	for(i in 1:length(seqs)) {
+	  if(GC_count[i] > (cutoff)) {
+
+		cat(SeqID[i],"\n",sequance[i], "\n", "\n",file = result_file, append = TRUE)
+	}}
+	'
+	"""
+}
+	
+workflow {
+	
+	main:	
+	//path for the seq fasta file fasta
+	seq_file_ch = channel.fromPath(params.inputFile)
+
+    // GC count in a sequancer
+	countGC( seq_file_ch, params.cutoff)
+}
